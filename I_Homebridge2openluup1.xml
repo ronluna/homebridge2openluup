@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<implementation>
+  <files>L_Homebridge2openluup1.lua</files>
+  <startup>luaStartUp</startup>
+
+  <actionList>
+
+    <action>
+      <serviceId>urn:upnp-org:serviceId:SwitchPower1</serviceId>
+      <name>SetTarget</name>
+        <job>
+          setTarget(lul_device,lul_settings.newTargetValue)
+        </job>
+    </action>
+
+    <action>
+      <serviceId>urn:micasaverde-com:serviceId:SecuritySensor1</serviceId>
+      <name>SetArmed</name>
+        <job>
+          setArmed(lul_device,lul_settings.newArmedValue)
+        </job>
+    </action>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:Dimming1</serviceId>
+      <name>SetLoadLevelTarget</name>
+        <job>
+          setLoadLevelTarget(lul_device,lul_settings.newLoadlevelTarget)
+        </job>
+    </action>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:WindowCovering1</serviceId>
+      <name>Up</name>
+        <job>
+          blindsUP(lul_device)
+        </job>
+    </action>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:WindowCovering1</serviceId>
+      <name>Down</name>
+        <job>
+          blindsDown(lul_device)
+        </job>
+    </action>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:WindowCovering1</serviceId>
+      <name>Stop</name>
+        <job>
+          blindsStop(lul_device)
+        </job>
+    </action>
+
+    <action>
+      <serviceId>urn:upnp-org:serviceId:HVAC_UserOperatingMode1</serviceId>
+      <name>SetModeTarget</name>
+        <job>
+          UserOpModeSetTarget(lul_device,lul_settings.NewModeTarget)
+        </job>
+    </action>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:TemperatureSetpoint1</serviceId>
+      <name>SetCurrentSetpoint</name>
+        <job>
+          SetCurrentSetpoint(lul_device,lul_settings.NewCurrentSetpoint)
+        </job>
+    </action>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:TemperatureSetpoint1_Cool</serviceId>
+      <name>SetCurrentSetpoint</name>
+        <job>
+          SetCurrentSetpoint_Cool(lul_device,lul_settings.NewCurrentSetpoint)
+        </job>
+    </action>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:TemperatureSetpoint1_Heat</serviceId>
+      <name>SetCurrentSetpoint</name>
+        <job>
+          SetCurrentSetpoint_Heat(lul_device,lul_settings.NewCurrentSetpoint)
+        </job>
+    </action>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:HVAC_FanOperatingMode1</serviceId>
+      <name>SetMode</name>
+        <job>
+          SetCurrentSetpoint_Cool(lul_device,lul_settings.NewMode)
+        </job>
+    </action>   
+    <action>
+      <serviceId>urn:upnp-org:serviceId:FanSpeed1</serviceId>
+      <name>SetFanSpeed</name>
+        <job>
+          SetCurrentSetpoint_Cool(lul_device,lul_settings.NewFanSpeedTarget)
+        </job>
+    </action> 
+
+
+    <action>
+      <serviceId>urn:ctrlable-com:serviceId:Homebridge2openluup1</serviceId>
+      <name>SetPower</name>
+      <run>
+        setPower(lul_settings.Zone, lul_settings.Power)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:ctrlable-com:serviceId:Homebridge2openluup1</serviceId>
+      <name>SetInput</name>
+      <run>
+        setInput(lul_settings.Zone, lul_settings.Input)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:ctrlable-com:serviceId:Homebridge2openluup1</serviceId>
+      <name>SetVolume</name>
+      <run>
+        setVolume(lul_settings.Zone, lul_settings.Volume)
+      </run>
+    </action>
+
+  </actionList>
+</implementation>
