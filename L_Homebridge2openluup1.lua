@@ -416,23 +416,25 @@ local function homebridgeGetDeviceValues(deviceId,deviceType,uniqueid)
         end
 
         if g_deviceType == "SW_POWER" then
-
-                local onoffstatus = response_body_decode["values"]["On"] or ""
-                --local brigtnesslevel = response_body_decode["values"]["Brightness"] or ""
-
-                luup.variable_set(SID["SW_POWER"],"Status", onoffstatus ,g_deviceId)
-                --luup.variable_set(SID["DIMMER"],"LoadLevelTarget", brigtnesslevel ,g_deviceId)
-
-        end
-
-        if g_deviceType == "SW_GATE" then
-
                 local onoffstatus = response_body_decode["values"]["On"] or ""
                 --local brigtnesslevel = response_body_decode["values"]["Brightness"] or ""
 
                 luup.variable_set(SID["SW_GATE"],"Status", onoffstatus ,g_deviceId)
                 --luup.variable_set(SID["DIMMER"],"LoadLevelTarget", brigtnesslevel ,g_deviceId)
+        end
 
+        if g_deviceType == "SW_GATE" then
+                local currentdoorstate = response_body_decode["values"]["CurrentDoorState"] or ""
+                --local brigtnesslevel = response_body_decode["values"]["Brightness"] or ""
+
+                local targetdoorstate = response_body_decode["values"]["TargetDoorState"] or ""
+                --local brigtnesslevel = response_body_decode["values"]["Brightness"] or ""
+
+                luup.variable_set(SID["SW_POWER"],"Status", currentdoorstate ,g_deviceId)
+                --luup.variable_set(SID["DIMMER"],"LoadLevelTarget", brigtnesslevel ,g_deviceId)
+
+                luup.variable_set(SID["SW_POWER"],"Target", targetdoorstate ,g_deviceId)
+                --luup.variable_set(SID["DIMMER"],"LoadLevelTarget", brigtnesslevel ,g_deviceId)
         end
 
         if g_deviceType == "DIMMER" then
@@ -659,8 +661,8 @@ function setTarget(device,value)
     end
 
     if switchType == "SW_GATE" then 
-        homebridgePutDevice(integrationId, "On", value)
-        luup.variable_set(SID["SW_GATE"], "Status", value, device)
+        homebridgePutDevice(integrationId, "TargetDoorState", value)
+        luup.variable_set(SID["SW_GATE"], "Target", value, device)
     end   
 
     if switchType == "LOCK" then 
