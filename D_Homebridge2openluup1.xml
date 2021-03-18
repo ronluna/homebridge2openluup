@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <root xmlns="urn:schemas-upnp-org:device-1-0">
 	<specVersion>
-		<major>1</major>
-		<minor>0</minor>
+		<major>0</major>
+		<minor>1</minor>
 	</specVersion>
 	<device>
 		<deviceType>urn:schemas-ctrlable-com:device:Homebridge2openluup1:1</deviceType>
@@ -23,7 +23,7 @@
 
 		<serviceList>
 			<service>
-				<serviceType>urn:schemas-ctrlable-com:serviceId:LutronRA2Telnet:1</serviceType>
+				<serviceType>urn:schemas-ctrlable-com:serviceId:Homebridge2openluup1:1</serviceType>
 				<serviceId>urn:schemas-ctrlable-com:serviceId:Homebridge2openluup1</serviceId>
 				<SCPDURL>S_Homebridge2openluup1.xml</SCPDURL>
 			</service>
