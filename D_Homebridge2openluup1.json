@@ -1,11 +1,11 @@
 {
-	"flashicon": "http://ctrlable.com/plugin-icons/homebridge2openluup.png",
-	"default_icon": "http://ctrlable.com/plugin-icons/homebridge2openluup.png",
+	"flashicon": "https://github.com/ronluna/homebridge2openluup/raw/main/homebridge-color-round-stylized.png",
+	"default_icon": "https://github.com/ronluna/homebridge2openluup/raw/main/homebridge-color-round-stylized.png",
 	"inScene": "1",
 	"DisplayStatus": {},
 	"doc_url": {
 		"doc_forced_url": {
-			"text": "http://ctrlable.com/trac/homebridge2openluup"
+			"text": "https://github.com/ronluna/homebridge2openluup"
 		}
 	},
 	"Tabs": [
