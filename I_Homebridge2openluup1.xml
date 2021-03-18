@@ -6,6 +6,14 @@
   <actionList>
 
     <action>
+      <serviceId>urn:micasaverde-com:serviceId:DoorLock1</serviceId>
+      <name>SetTarget</name>
+        <job>
+          setTarget(lul_device,lul_settings.newTargetValue)
+        </job>
+    </action>
+
+    <action>
       <serviceId>urn:upnp-org:serviceId:SwitchPower1</serviceId>
       <name>SetTarget</name>
         <job>

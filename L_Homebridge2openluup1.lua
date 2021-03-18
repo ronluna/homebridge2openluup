@@ -20,7 +20,7 @@ local SID = {
         ["BLINDS"]           = "urn:upnp-org:serviceId:WindowCovering1",
         ["SHADEGRP"]         = "urn:upnp-org:serviceId:WindowCovering1",
         ["KEYPAD"]           = "urn:upnp-org:serviceId:LutronKeypad1",
-        ["AREA"]             = "urn:ctrlable-com:serviceId:SecuritySensor1",
+        ["AREA"]             = "urn:micasaverde-com:serviceId:SecuritySensor1",
         ["LOCK"]             = "urn:micasaverde-com:serviceId:DoorLock1",
         ["TH_USER_MODE"]     = "urn:upnp-org:serviceId:HVAC_UserOperatingMode1", 
         ["TH_USER_STATE"]    = "urn:micasaverde-com:serviceId:HVAC_OperatingState1",    
@@ -225,15 +225,21 @@ local function homebridgeLogin()
         debug('response_body_parse token_type = '..response_body_parsed["token_type"])
         debug('response_body_parse expires_in = '..response_body_parsed["expires_in"])
 
+        updateVariable('Connected', '1')
+
         return true, page
     end
 
     if (c == 400) then
         luup.log(PLUGIN_NAME..' debug: HTTP 400 Bad Request: JSON parse error', 1)
+        updateVariable('Connected', '0')
+
         return false, page
     end
 
     return false, page
+
+
 end
 
 local function homebridgeGetDevices()
@@ -280,6 +286,13 @@ local function homebridgeGetDeviceValues(deviceId,deviceType,uniqueid)
     local response_body2 = {}
     local request_body = ""..token_type.." "..access_token..""
     local g_tempformat = luup.attr_get "TemperatureFormat"
+    
+    local evalFahr = false
+
+    if g_tempformat == "F" then
+        evalFahr = true
+    end
+
 
     local r, c, h = http.request {
           url     = 'http://'..ipAddress..':'..ipPort..'/api/accessories/'..g_uniqueId,
@@ -316,24 +329,30 @@ local function homebridgeGetDeviceValues(deviceId,deviceType,uniqueid)
                     local processed_cooling_temp = ""
                     local processed_heating_temp = ""
 
-                    local processed_current_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["CurrentTemperature"]))
+                    --local processed_current_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["CurrentTemperature"]))
+                    local processed_current_temp = (evalFahr and round_temp(temp_fahrenheit(response_body_decode["values"]["CurrentTemperature"])) or round_temp(response_body_decode["values"]["CurrentTemperature"]))
 
                     if CoolingThresholdTemperature ~= "" then  -- FOR ECOBEE3 HOMEBRIDGE PLUGIN 
-                        processed_cooling_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["CoolingThresholdTemperature"]))
+                        --processed_cooling_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["CoolingThresholdTemperature"]))
+                        processed_cooling_temp = (evalFahr and round_temp(temp_fahrenheit(response_body_decode["values"]["CoolingThresholdTemperature"])) or round_temp(response_body_decode["values"]["CoolingThresholdTemperature"]))
                         debug("NOT Ecobee Processed Cooling Temp CoolingThresholdTemperature: " ..processed_cooling_temp)
                     else
-                        processed_cooling_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["TargetTemperature"]))
+                        --processed_cooling_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["TargetTemperature"]))
+                        processed_cooling_temp = (evalFahr and round_temp(temp_fahrenheit(response_body_decode["values"]["TargetTemperature"])) or round_temp(response_body_decode["values"]["TargetTemperature"]))
                         debug("IS Ecobee Processed Cooling Temp TargetTemperature: " ..processed_cooling_temp)
                     end
 
                     if HeatingThresholdTemperature ~= "" then -- FOR ECOBEE3 HOMEBRIDGE PLUGIN 
-                        processed_heating_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["HeatingThresholdTemperature"]))
+                        --processed_heating_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["HeatingThresholdTemperature"]))
+                        processed_heating_temp = (evalFahr and round_temp(temp_fahrenheit(response_body_decode["values"]["HeatingThresholdTemperature"])) or round_temp(response_body_decode["values"]["HeatingThresholdTemperature"]))
                     else
-                        processed_heating_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["TargetTemperature"]))
+                        --processed_heating_temp = round_temp(temp_fahrenheit(response_body_decode["values"]["TargetTemperature"]))
+                        processed_heating_temp = (evalFahr and round_temp(temp_fahrenheit(response_body_decode["values"]["TargetTemperature"])) or round_temp(response_body_decode["values"]["TargetTemperature"]))
                     end                        
 
                     if thermoType == "Thermostat" then -- Homebredige devType Thermostat
-                        processed_target_temp = temp_fahrenheit(round_temp(response_body_decode["values"]["TargetTemperature"]))
+                        --processed_target_temp = temp_fahrenheit(round_temp(response_body_decode["values"]["TargetTemperature"]))
+                        processed_target_temp = (evalFahr and temp_fahrenheit(round_temp(response_body_decode["values"]["TargetTemperature"])) or round_temp(response_body_decode["values"]["TargetTemperature"]))
                         
                         if onoffstatus == "" then -- FOR ECOBEE3 HOMEBRIDGE PLUGIN
                             if response_body_decode["values"]["TargetHeatingCoolingState"] == 0 and response_body_decode["values"]["CurrentHeatingCoolingState"] == 0 then
@@ -364,7 +383,8 @@ local function homebridgeGetDeviceValues(deviceId,deviceType,uniqueid)
                         end 
 
                     elseif thermoType == "HeaterCooler" then  -- Homebredige devType Heater Cooler
-                        local processed_target_temp = temp_fahrenheit(round_temp(response_body_decode["values"]["TargetHeaterCoolerState"]))
+                        --local processed_target_temp = temp_fahrenheit(round_temp(response_body_decode["values"]["TargetHeaterCoolerState"]))
+                        local processed_target_temp = (evalFahr and temp_fahrenheit(round_temp(response_body_decode["values"]["TargetHeaterCoolerState"])) or round_temp(response_body_decode["values"]["TargetHeaterCoolerState"]))
                         local onoffstatus = response_body_decode["values"]["Active"]
                         luup.variable_set(SID["TH_USER_MODE"],"Type", "HeaterCooler" ,g_deviceId)
                         luup.variable_set(SID["TH_USER_MODE"],"Manufacturer", thermoManu ,g_deviceId)
@@ -425,6 +445,21 @@ local function homebridgeGetDeviceValues(deviceId,deviceType,uniqueid)
 
         end
 
+        if g_deviceType == "AREA" then
+
+                local sensorstatus = response_body_decode["values"]["MotionDetected"] or ""
+                luup.variable_set(SID["AREA"],"Tripped", sensorstatus ,g_deviceId)
+
+        end
+
+        if g_deviceType == "LOCK" then
+
+                local lockcurrentstate = response_body_decode["values"]["LockCurrentState"] or ""
+                local locktargetstate = response_body_decode["values"]["LockTargetState"] or ""
+                luup.variable_set(SID["LOCK"],"Status", lockcurrentstate ,g_deviceId)
+                luup.variable_set(SID["LOCK"],"Target", locktargetstate ,g_deviceId)
+
+        end
 end
 
 local function homebridgePutDevice(uniqueid, characteristicType, value)
@@ -550,6 +585,9 @@ local function getDevices(device)
                 elseif typedev == "T" then
                     g_childDevices[index].integrationId = val
                     g_childDevices[index].devType = "THERMOSTAT"
+                 elseif typedev == "A" then
+                    g_childDevices[index].integrationId = val
+                    g_childDevices[index].devType = "AREA"
                 else
                     log("(Homebridge PLugin)::(getDevices) : ERROR : DeviceList spelling error found")  
                 end
@@ -576,7 +614,9 @@ local function appendDevices(device)
         elseif value.devType == "THERMOSTAT" then
             luup.chdev.append(device,ptr, value.integrationId,"THERMOSTAT_" .. value.integrationId,DEVTYPE[value.devType],"D_HVAC_ZoneThermostat1.xml","","",false)
             g_occupancyFlag = true
-
+        elseif value.devType == "AREA" then
+            luup.chdev.append(device,ptr, value.integrationId,"AREA_" .. value.integrationId,DEVTYPE[value.devType],"D_MotionSensor1.xml","","",false)
+            g_occupancyFlag = true
         else
             log("(Homebridge PLugin)::(appendDevices) : ERROR : Unknown device type!")  
         end
@@ -613,14 +653,20 @@ function setTarget(device,value)
 
 
     debug("(homebridge2openluup PLugin)::(debug)::(setTarget) : Sending command :'" .. integrationId .."' ..." .. value)
-    homebridgePutDevice(integrationId, "On", value)
     if switchType == "SW_POWER" then 
+        homebridgePutDevice(integrationId, "On", value)
         luup.variable_set(SID["SW_POWER"], "Status", value, device)
     end
 
-     if switchType == "SW_GATE" then 
+    if switchType == "SW_GATE" then 
+        homebridgePutDevice(integrationId, "On", value)
         luup.variable_set(SID["SW_GATE"], "Status", value, device)
     end   
+
+    if switchType == "LOCK" then 
+        homebridgePutDevice(integrationId, "LockTargetState", value)
+        luup.variable_set(SID["LOCK"], "Status", value, device)
+    end 
 
 end
 
