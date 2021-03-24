@@ -239,7 +239,6 @@ local function homebridgeLogin()
 
     return false, page
 
-
 end
 
 local function homebridgeGetDevices()
@@ -702,7 +701,10 @@ function SetCurrentSetpoint(device,value)
 
     if g_tempformat == "F" then
         debug(' Setpoint Cool celsius_temp converted to Fahr' .. round_temp(temp_celsius(value)))
-        if thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+        if thermostatManu == "ecobee" and thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+            homebridgePutDevice(integrationId, "TargetTemperature", round_temp(temp_celsius(value)))
+            luup.variable_set(SID["TH_TEMP_SET"], "CurrentSetpoint", round_temp(value), device)
+        elseif thermostatManu == "Mitsubishi" and thermostatModel == "Default-Model" then -- FOR Mitsubishi
             homebridgePutDevice(integrationId, "TargetTemperature", round_temp(temp_celsius(value)))
             luup.variable_set(SID["TH_TEMP_SET"], "CurrentSetpoint", round_temp(value), device)
         else
@@ -712,7 +714,10 @@ function SetCurrentSetpoint(device,value)
         debug("(homebridge2openluup PLugin)::(debug)::(SetCurrentSetpoint) : Sending command :'" .. integrationId .."' ..." .. round_temp(temp_celsius(value)))
     else
         debug(' Setpoint Cool celsius_temp kept' .. value)
-        if thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+        if thermostatManu == "ecobee" and thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+            homebridgePutDevice(integrationId, "TargetTemperature", round_temp(value))
+            luup.variable_set(SID["TH_TEMP_SET"], "CurrentSetpoint", round_temp(value), device)
+        elseif thermostatManu == "Mitsubishi" and thermostatModel == "Default-Model" then -- FOR Mitsubishi
             homebridgePutDevice(integrationId, "TargetTemperature", round_temp(value))
             luup.variable_set(SID["TH_TEMP_SET"], "CurrentSetpoint", round_temp(value), device)
         else
@@ -740,10 +745,13 @@ function SetCurrentSetpoint_Cool(device,value)
 
     if g_tempformat == "F" then
         debug(' Setpoint Cool celsius_temp converted to Fahr' .. round_temp(temp_celsius(value)))
-        if thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+        if thermostatManu == "ecobee" and thermostatModel == "nikeSmart" then -- FOR ECOBEE3
             homebridgePutDevice(integrationId, "TargetTemperature", round_temp(temp_celsius(value)))
             luup.variable_set(SID["TH_TEMP_SET_COOL"], "CurrentSetpoint", round_temp(value), device)
             debug("(homebridge2openluup TargetTemperature PLugin)::(debug)::(SetCurrentSetpoint_Cool) : Sending command :'" .. integrationId .."' ..." .. round_temp(temp_celsius(value)))
+         elseif thermostatManu == "Mitsubishi" and thermostatModel == "Default-Model" then -- FOR Mitsubishi
+            homebridgePutDevice(integrationId, "TargetTemperature", round_temp(temp_celsius(value)))
+            luup.variable_set(SID["TH_TEMP_SET_COOL"], "CurrentSetpoint", round_temp(value), device)
         else
             homebridgePutDevice(integrationId, "CoolingThresholdTemperature", round_temp(temp_celsius(value)))
             luup.variable_set(SID["TH_TEMP_SET_COOL"], "CurrentSetpoint", round_temp(value), device)
@@ -751,7 +759,10 @@ function SetCurrentSetpoint_Cool(device,value)
         end
     else
         debug(' Setpoint Cool celsius_temp kept' .. value)
-        if thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+        if thermostatManu == "ecobee" and thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+            homebridgePutDevice(integrationId, "TargetTemperature", round_temp(value))
+            luup.variable_set(SID["TH_TEMP_SET_COOL"], "CurrentSetpoint", round_temp(value), device)
+         elseif thermostatManu == "Mitsubishi" and thermostatModel == "Default-Model" then -- FOR Mitsubishi
             homebridgePutDevice(integrationId, "TargetTemperature", round_temp(value))
             luup.variable_set(SID["TH_TEMP_SET_COOL"], "CurrentSetpoint", round_temp(value), device)
         else
@@ -778,7 +789,10 @@ function SetCurrentSetpoint_Heat(device,value)
 
     if g_tempformat == "F" then
         debug(' Setpoint Cool celsius_temp converted to Fahr' .. round_temp(temp_celsius(value)))
-        if thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+        if thermostatManu == "ecobee" and thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+            homebridgePutDevice(integrationId, "TargetTemperature", round_temp(temp_celsius(value)))
+            luup.variable_set(SID["TH_TEMP_SET_HEAT"], "CurrentSetpoint", round_temp(value), device)
+        elseif thermostatManu == "Mitsubishi" and thermostatModel == "Default-Model" then -- FOR Mitsubishi
             homebridgePutDevice(integrationId, "TargetTemperature", round_temp(temp_celsius(value)))
             luup.variable_set(SID["TH_TEMP_SET_HEAT"], "CurrentSetpoint", round_temp(value), device)
         else
@@ -788,7 +802,10 @@ function SetCurrentSetpoint_Heat(device,value)
         debug("(homebridge2openluup HeatingThresholdTemperature PLugin)::(debug)::(SetCurrentSetpoint_Heat) : Sending command :'" .. integrationId .."' ..." .. round_temp(temp_celsius(value)))
     else
         debug(' Setpoint Cool celsius_temp kept' .. value)
-        if thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+        if thermostatManu == "ecobee" and thermostatModel == "nikeSmart" then -- FOR ECOBEE3
+            homebridgePutDevice(integrationId, "TargetTemperature", round_temp(value))
+            luup.variable_set(SID["TH_TEMP_SET_HEAT"], "CurrentSetpoint", round_temp(value), device)
+        elseif thermostatManu == "Mitsubishi" and thermostatModel == "Default-Model" then -- FOR Mitsubishi
             homebridgePutDevice(integrationId, "TargetTemperature", round_temp(value))
             luup.variable_set(SID["TH_TEMP_SET_HEAT"], "CurrentSetpoint", round_temp(value), device)
         else
