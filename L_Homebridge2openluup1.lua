@@ -659,6 +659,11 @@ function setTarget(device,value)
         luup.variable_set(SID["SW_POWER"], "Status", value, device)
     end
 
+    if switchType == "DIMMER" then 
+        homebridgePutDevice(integrationId, "On", value)
+        luup.variable_set(SID["SW_POWER"], "Status", value, device)
+    end
+
     if switchType == "SW_GATE" then 
         homebridgePutDevice(integrationId, "TargetDoorState", value)
         luup.variable_set(SID["SW_GATE"], "Target", value, device)
@@ -865,6 +870,11 @@ function monitorHomebrideDevices()
     luup.call_delay('monitorHomebrideDevices', 5, '')
 end
 
+function monitorHomebrideLogin()
+    homebridgeLogin()
+    luup.call_delay('monitorHomebrideLogin', 21600, '')
+end
+
 function luaStartUp(lul_device)
     THIS_LUL_DEVICE = lul_device
     debug('luaStartUp running')
@@ -884,7 +894,8 @@ function luaStartUp(lul_device)
     updateVariable('homebridgeURL', homebridgeURL)
     getDevices(THIS_LUL_DEVICE)
     appendDevices(THIS_LUL_DEVICE)
-    homebridgeLogin()
+    --homebridgeLogin()
+    monitorHomebrideLogin()
     luup.sleep(200)
     homebridgeGetDevices()
     setChildID(THIS_LUL_DEVICE)
