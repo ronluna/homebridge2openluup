@@ -312,6 +312,12 @@ local function homebridgeGetDeviceValues(deviceId,deviceType,uniqueid)
 
         local response_body_decode = json.decode(concat_response_body)
 
+    if c == 400 then
+        --Maybe homebridge is rebooting 
+        debug('wait a little - Homebridge return code = '..c)
+        luup.sleep(2500)
+        homebridgeLogin()
+    else 
         if g_deviceType == "THERMOSTAT" then
                 debug('Engine Global Temperature Unit = '..g_tempformat)
                 local thermoType = response_body_decode["type"] or ""
@@ -459,8 +465,8 @@ local function homebridgeGetDeviceValues(deviceId,deviceType,uniqueid)
                 local locktargetstate = response_body_decode["values"]["LockTargetState"] or ""
                 luup.variable_set(SID["LOCK"],"Status", lockcurrentstate ,g_deviceId)
                 luup.variable_set(SID["LOCK"],"Target", locktargetstate ,g_deviceId)
-
         end
+    end    
 end
 
 local function homebridgePutDevice(uniqueid, characteristicType, value)
