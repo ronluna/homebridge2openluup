@@ -45,7 +45,7 @@ local DEVTYPE = {
 
 local g_childDevices = {
     -- .id       -> vera id
-    -- .integrationId -> lutron internal id
+    -- .integrationId -> Homebridge uuid
     -- .devType -> device type (dimmer, blinds , binary light or keypad)
     -- .fadeTime 
     -- .componentNumber = {} -> only for keypads
@@ -607,30 +607,44 @@ end
 local function appendDevices(device)
     local ptr = luup.chdev.start(device)
     local index = 0
+    local InitDeviceName = ""
+
     for key, value in pairs(g_childDevices) do
-        if value.devType == "DIMMER" then
-            luup.chdev.append(device,ptr, value.integrationId,"DIMMER_" .. value.integrationId,DEVTYPE[value.devType],"D_DimmableLight1.xml","","",false)
-        elseif value.devType == "BLINDS" then
-            luup.chdev.append(device,ptr, value.integrationId,"BLINDS_" .. value.integrationId,DEVTYPE[value.devType],"D_WindowCovering1.xml","","",false)
-        elseif value.devType == "SW_POWER" then
-            luup.chdev.append(device,ptr, value.integrationId,"BINARY_LIGHT_" .. value.integrationId,DEVTYPE[value.devType],"D_BinaryLight1.xml","","",false)
-        elseif value.devType == "SW_GATE" then
-            luup.chdev.append(device,ptr, value.integrationId,"GATE_" .. value.integrationId,DEVTYPE[value.devType],"D_GarageDoor1.xml","","",false)
-        elseif value.devType == "LOCK" then
-            luup.chdev.append(device,ptr, value.integrationId,"LOCK_" .. value.integrationId,DEVTYPE[value.devType],"D_DoorLock1.xml","","",false)
-        elseif value.devType == "THERMOSTAT" then
-            luup.chdev.append(device,ptr, value.integrationId,"THERMOSTAT_" .. value.integrationId,DEVTYPE[value.devType],"D_HVAC_ZoneThermostat1.xml","","",false)
-            g_occupancyFlag = true
-        elseif value.devType == "AREA" then
-            luup.chdev.append(device,ptr, value.integrationId,"AREA_" .. value.integrationId,DEVTYPE[value.devType],"D_MotionSensor1.xml","","",false)
-            g_occupancyFlag = true
+
+        debug("(Homebridge PLugin)::(appendDevices value.id) : " .. key .." ".. value.id)
+        if value.id == -1 then
+              InitDeviceName = value.devType .."_".. value.integrationId
+              debug("(Homebridge PLugin)::(appendDevices InitDeviceName FILLED) : " .. InitDeviceName .. " InitDeviceName ")
         else
-            log("(Homebridge PLugin)::(appendDevices) : ERROR : Unknown device type!")  
+              InitDeviceName = ""
+              debug("(Homebridge PLugin)::(appendDevices InitDeviceName EMPTY) : " .. InitDeviceName .. " InitDeviceName ")
         end
-        if index > 49 then
-            log("(Homebridge PLugin)::(appendDevices) : ERROR : High number of new devices to create, possible ERROR!") 
-            break
-        end
+
+            if value.devType == "DIMMER" then
+                --luup.chdev.append(device,ptr, value.integrationId,"DIMMER_" .. value.integrationId,DEVTYPE[value.devType],"D_DimmableLight1.xml","","",false)
+                luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_DimmableLight1.xml","","",false)
+            elseif value.devType == "BLINDS" then
+                luup.chdev.append(device,ptr, value.integrationId,"BLINDS_" .. value.integrationId,DEVTYPE[value.devType],"D_WindowCovering1.xml","","",false)
+            elseif value.devType == "SW_POWER" then
+                luup.chdev.append(device,ptr, value.integrationId,"BINARY_LIGHT_" .. value.integrationId,DEVTYPE[value.devType],"D_BinaryLight1.xml","","",false)
+            elseif value.devType == "SW_GATE" then
+                luup.chdev.append(device,ptr, value.integrationId,"GATE_" .. value.integrationId,DEVTYPE[value.devType],"D_GarageDoor1.xml","","",false)
+            elseif value.devType == "LOCK" then
+                luup.chdev.append(device,ptr, value.integrationId,"LOCK_" .. value.integrationId,DEVTYPE[value.devType],"D_DoorLock1.xml","","",false)
+            elseif value.devType == "THERMOSTAT" then
+                --luup.chdev.append(device,ptr, value.integrationId,"THERMOSTAT_" .. value.integrationId,DEVTYPE[value.devType],"D_HVAC_ZoneThermostat1.xml","","",false)
+                luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_HVAC_ZoneThermostat1.xml","","",false)
+                g_occupancyFlag = true
+            elseif value.devType == "AREA" then
+                luup.chdev.append(device,ptr, value.integrationId,"AREA_" .. value.integrationId,DEVTYPE[value.devType],"D_MotionSensor1.xml","","",false)
+                g_occupancyFlag = true
+            else
+                log("(Homebridge PLugin)::(appendDevices) : ERROR : Unknown device type!")  
+            end
+            if index > 49 then
+                log("(Homebridge PLugin)::(appendDevices) : ERROR : High number of new devices to create, possible ERROR!") 
+                break
+            end
     end
     luup.chdev.sync(device,ptr)
 end
@@ -899,12 +913,12 @@ function luaStartUp(lul_device)
     local homebridgeURL = "http://"..ipAddress..":"..ipPort.."/"
     updateVariable('homebridgeURL', homebridgeURL)
     getDevices(THIS_LUL_DEVICE)
-    appendDevices(THIS_LUL_DEVICE)
     --homebridgeLogin()
     monitorHomebrideLogin()
     luup.sleep(200)
     homebridgeGetDevices()
     setChildID(THIS_LUL_DEVICE)
+    appendDevices(THIS_LUL_DEVICE)
     --homebridgeGetDeviceValues("c4e93bc2fafce70324785e3b50270e6850cf1b09b406e0e1bc05d77c212d5d04")
     luup.sleep(400)
     --homebridgePutDevice("c4e93bc2fafce70324785e3b50270e6850cf1b09b406e0e1bc05d77c212d5d04","TargetTemperature","18")
