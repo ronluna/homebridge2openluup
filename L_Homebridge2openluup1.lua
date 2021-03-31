@@ -621,22 +621,20 @@ local function appendDevices(device)
         end
 
             if value.devType == "DIMMER" then
-                --luup.chdev.append(device,ptr, value.integrationId,"DIMMER_" .. value.integrationId,DEVTYPE[value.devType],"D_DimmableLight1.xml","","",false)
                 luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_DimmableLight1.xml","","",false)
             elseif value.devType == "BLINDS" then
-                luup.chdev.append(device,ptr, value.integrationId,"BLINDS_" .. value.integrationId,DEVTYPE[value.devType],"D_WindowCovering1.xml","","",false)
+                luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_WindowCovering1.xml","","",false)
             elseif value.devType == "SW_POWER" then
-                luup.chdev.append(device,ptr, value.integrationId,"BINARY_LIGHT_" .. value.integrationId,DEVTYPE[value.devType],"D_BinaryLight1.xml","","",false)
+                luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_BinaryLight1.xml","","",false)
             elseif value.devType == "SW_GATE" then
-                luup.chdev.append(device,ptr, value.integrationId,"GATE_" .. value.integrationId,DEVTYPE[value.devType],"D_GarageDoor1.xml","","",false)
+                luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_GarageDoor1.xml","","",false)
             elseif value.devType == "LOCK" then
-                luup.chdev.append(device,ptr, value.integrationId,"LOCK_" .. value.integrationId,DEVTYPE[value.devType],"D_DoorLock1.xml","","",false)
+                luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_DoorLock1.xml","","",false)
             elseif value.devType == "THERMOSTAT" then
-                --luup.chdev.append(device,ptr, value.integrationId,"THERMOSTAT_" .. value.integrationId,DEVTYPE[value.devType],"D_HVAC_ZoneThermostat1.xml","","",false)
                 luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_HVAC_ZoneThermostat1.xml","","",false)
                 g_occupancyFlag = true
             elseif value.devType == "AREA" then
-                luup.chdev.append(device,ptr, value.integrationId,"AREA_" .. value.integrationId,DEVTYPE[value.devType],"D_MotionSensor1.xml","","",false)
+                luup.chdev.append(device,ptr, value.integrationId,InitDeviceName,DEVTYPE[value.devType],"D_MotionSensor1.xml","","",false)
                 g_occupancyFlag = true
             else
                 log("(Homebridge PLugin)::(appendDevices) : ERROR : Unknown device type!")  
