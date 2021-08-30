@@ -452,6 +452,17 @@ local function homebridgeGetDeviceValues(deviceId,deviceType,uniqueid)
 
         end
 
+        if g_deviceType == "BLINDS" then
+
+                --local onoffstatus = response_body_decode["values"]["On"] or ""
+                local currentposition = response_body_decode["values"]["CurrentPosition"] or ""
+
+                --luup.variable_set(SID["SW_POWER"],"Status", onoffstatus ,g_deviceId)
+                luup.variable_set(SID["DIMMER"],"LoadLevelStatus", currentposition ,g_deviceId)
+                luup.variable_set(SID["DIMMER"],"LoadLevelTarget", currentposition ,g_deviceId)
+
+        end
+
         if g_deviceType == "AREA" then
 
                 local sensorstatus = response_body_decode["values"]["MotionDetected"] or ""
@@ -479,7 +490,7 @@ local function homebridgePutDevice(uniqueid, characteristicType, value)
     http.TIMEOUT = 1
     --local login_payload = [[ {"username":"..admin","password":"admin","otp":"ctrlable"} ]]
     local request_body_auth = ""..token_type.." "..access_token..""
-    if g_characteristicType == "Brightness" then
+    if (g_characteristicType == "Brightness" or g_characteristicType == "TargetPosition")  then
         request_body =  "{\"characteristicType\":\""..g_characteristicType.."\",\"value\":\ " .. g_value .. "}"
         debug('request_body for numbers = '..request_body)
     else
@@ -682,6 +693,11 @@ function setTarget(device,value)
         luup.variable_set(SID["SW_POWER"], "Status", value, device)
     end
 
+    if switchType == "BLINDS" then
+        homebridgePutDevice(integrationId, "TargetPosition", value)
+        luup.variable_set(SID["SW_POWER"], "Status", value, device)
+    end
+
     if switchType == "SW_GATE" then 
         homebridgePutDevice(integrationId, "TargetDoorState", value)
         luup.variable_set(SID["SW_GATE"], "Target", value, device)
@@ -700,12 +716,72 @@ function setLoadLevelTarget(device,value)
     for k,v in pairs(g_childDevices) do
         if v.id == device then
             integrationId = v.integrationId
+            switchType = v.devType
         end
     end
 
+    if switchType == "BLINDS" then
+    debug("(homebridge2openluup PLugin)::(debug)::(setLoadLevelTarget) : Sending command :'" .. integrationId .."' ..." .. value)
+    homebridgePutDevice(integrationId, "TargetPosition", tonumber(value))
+    luup.variable_set(SID["DIMMER"],"LoadLevelTarget", tonumber(value), device)
+        luup.variable_set(SID["DIMMER"],"LoadLevelStatus", tonumber(value), device)
+    else
     debug("(homebridge2openluup PLugin)::(debug)::(setLoadLevelTarget) : Sending command :'" .. integrationId .."' ..." .. value)
     homebridgePutDevice(integrationId, "Brightness", tonumber(value))
     luup.variable_set(SID["DIMMER"],"LoadLevelTarget", tonumber(value), device)
+    end
+end
+
+
+function blindsUP(device)
+    local integrationId = ""
+    local cmd = ""
+    for k,v in pairs(g_childDevices) do
+        if v.id == device then
+            integrationId = v.integrationId
+            switchType = v.devType
+        end
+    end
+
+    if switchType == "BLINDS" then
+        debug("(homebridge2openluup PLugin)::(debug)::(setLoadLevelTarget) : Sending command :'" .. integrationId .."' ...")
+        homebridgePutDevice(integrationId, "TargetPosition", tonumber("100"))
+        luup.variable_set(SID["DIMMER"],"LoadLevelTarget", tonumber("100"), device)
+    end
+end
+
+function blindsDown(device)
+    local integrationId = ""
+    local cmd = ""
+    for k,v in pairs(g_childDevices) do
+        if v.id == device then
+            integrationId = v.integrationId
+            switchType = v.devType
+        end
+    end
+
+    if switchType == "BLINDS" then
+        debug("(homebridge2openluup PLugin)::(debug)::(setLoadLevelTarget) : Sending command :'" .. integrationId .."' ...")
+        homebridgePutDevice(integrationId, "TargetPosition", tonumber("0"))
+        luup.variable_set(SID["DIMMER"],"LoadLevelTarget", tonumber("0"), device)
+    end
+end
+
+function blindsStop(device)
+    local integrationId = ""
+    local cmd = ""
+    for k,v in pairs(g_childDevices) do
+        if v.id == device then
+            integrationId = v.integrationId
+            switchType = v.devType
+        end
+    end
+
+    if switchType == "BLINDS" then
+        debug("(homebridge2openluup PLugin)::(debug)::(setLoadLevelTarget) : Sending command :'" .. integrationId .."' ...")
+        homebridgePutDevice(integrationId, "TargetPosition", tonumber("50"))
+        luup.variable_set(SID["DIMMER"],"LoadLevelTarget", tonumber("50"), device)
+    end
 end
 
 function SetCurrentSetpoint(device,value)
@@ -885,7 +961,7 @@ function monitorHomebrideDevices()
         debug('g_childDevices devType = '.. k ..' '..v.devType)
         homebridgeGetDeviceValues(v.id,v.devType,v.integrationId)
     end
-    luup.call_delay('monitorHomebrideDevices', 5, '')
+    luup.call_delay('monitorHomebrideDevices', 15, '')
 end
 
 function monitorHomebrideLogin()
